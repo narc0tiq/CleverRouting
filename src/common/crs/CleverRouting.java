@@ -8,11 +8,8 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
 
 import net.minecraftforge.common.Configuration;
-import net.minecraftforge.common.Property;
 
 @Mod(
         modid = "CleverRouting",
@@ -46,10 +43,8 @@ public class CleverRouting {
             config.load();
         }
         catch (RuntimeException e) { /* and ignore it */ }
-
-        config.save();
-
         proxy.init();
+        config.save();
     }
 
     @Mod.PostInit

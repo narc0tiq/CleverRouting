@@ -4,6 +4,7 @@ import cpw.mods.fml.common.Side;
 
 import net.minecraft.src.BlockContainer;
 import net.minecraft.src.EntityItem;
+import net.minecraft.src.IBlockAccess;
 import net.minecraft.src.IInventory;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Material;
