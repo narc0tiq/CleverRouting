@@ -1,0 +1,15 @@
+[{
+  "modid": "CleverRouting",
+  "name": "Clever Routing System",
+  "description": "A ComputerCraft-compatible pneumatic item transport system.",
+  "version": "%conf:VERSION%",
+  "mcversion": "1.4.5",
+  "logoFile": "",
+  "url": "http://github.com/narc0tiq/CleverRouting",
+  "updateUrl": "",
+  "authors": ["Narc", "FunnyMan3595"],
+  "credits": "",
+  "parent": "",
+  "screenshots": [],
+  "dependencies": []
+}]
