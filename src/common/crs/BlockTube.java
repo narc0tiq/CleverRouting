@@ -7,6 +7,8 @@ import net.minecraft.src.IBlockAccess;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
 
+import net.minecraftforge.common.ForgeDirection;
+
 import java.util.Random;
 
 public class BlockTube extends BlockGeneric {
@@ -16,14 +18,34 @@ public class BlockTube extends BlockGeneric {
     }
 
     //TODO: Need to override getSelectedBoundingBoxFromPool later
-    // Probably want setBlockBoundsBasedOnState, too.
-    // Note: default collision bounding box should be fine.
+
+    @Override
+    public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
+        // Default state.
+        this.setBlockBounds(0.25F, 0.25F, 0.25F, 0.75F, 0.75F, 0.75F);
+
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        if(!(te instanceof TileEntityTube)) {
+            return; // what do?
+        }
+        TileEntityTube tube = (TileEntityTube)te;
+
+        for(int i = 0; i < tube.connections.length; i++) {
+            switch(tube.connections[i]){
+                case EAST:  this.maxX = 1.0F; break;
+                case WEST:  this.minX = 0.0F; break;
+                case UP:    this.maxY = 1.0F; break;
+                case DOWN:  this.minY = 0.0F; break;
+                case SOUTH: this.maxZ = 1.0F; break;
+                case NORTH: this.minZ = 0.0F; break;
+            }
+        }
+    }
 
     @Override
     @SideOnly(Side.CLIENT)
     public int getRenderType() {
-        //return ClientProxy.tubeRenderer.getRenderId();
-        return 0;
+        return ClientProxy.tubeRenderer.getRenderId();
     }
 
     @Override
@@ -38,7 +60,12 @@ public class BlockTube extends BlockGeneric {
 
     @Override
     public TileEntity createNewTileEntity(World world) {
-        return null;
+        return new TileEntityTube();
+    }
+
+    @Override
+    public TileEntity createNewTileEntity(World world, int data) {
+        return this.createNewTileEntity(world);
     }
 
     @Override

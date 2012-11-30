@@ -15,12 +15,12 @@ public class CommonProxy {
     public static ItemStack tubeGold;
     public static ItemStack tubeBrass;
 
-    public static void init() {
+    public void init() {
         initBlocks(CleverRouting.config);
         initItems(CleverRouting.config);
     }
 
-    public static void initBlocks(Configuration config) {
+    public void initBlocks(Configuration config) {
         Property tubeID = config.getBlock("generic.tube", 512);
         tubeID.comment = "All tubes use this block ID. Don't change it once in it's in place!";
         tubeBlock = new BlockTube(tubeID.getInt());
@@ -28,7 +28,7 @@ public class CommonProxy {
         GameRegistry.registerBlock(tubeBlock);
     }
 
-    public static void initItems(Configuration config) {
+    public void initItems(Configuration config) {
         Property stoneTubeID = config.getItem("tube.stone", 21010);
         Item stoneTubeItem = new ItemGeneric("crs.tube.stone", stoneTubeID.getInt(), 0);
         tubeStone = new ItemStack(stoneTubeItem, 1);
