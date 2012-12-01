@@ -102,7 +102,6 @@ public class BlockTube extends BlockGeneric {
     @Override
     @SideOnly(Side.CLIENT)
     public int getBlockTexture(IBlockAccess world, int x, int y, int z, int side) {
-        // TODO: Use the real tube's texture... though that should be resolved by our renderer anyway
-        return 1;
+        return 0;
     }
 }

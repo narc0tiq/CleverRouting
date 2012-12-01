@@ -6,14 +6,14 @@ import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.TileEntity;
 
 public class TileEntityTube extends TileEntity {
+    // Please be sure and keep this in sort() order.
     public ForgeDirection[] connections;
 
     public TileEntityTube() {
         super();
 
         this.blockType = CommonProxy.tubeBlock;
-        // HAX: Debug connections.
-        this.connections = new ForgeDirection[]{ ForgeDirection.WEST, ForgeDirection.UNKNOWN };
+        this.connections = new ForgeDirection[]{ ForgeDirection.UNKNOWN, ForgeDirection.UNKNOWN };
     }
 
     public void readFromNBT(NBTTagCompound tag) {

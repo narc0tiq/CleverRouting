@@ -36,14 +36,19 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         TileEntityTube tube = (TileEntityTube)te;
 
         ForgeHooksClient.bindTexture("/crs-gfx/blocks.png", 0);
-        if(tube.connections[0].getOpposite() == tube.connections[1]) {
-            return renderStraightTube(tube, x, y, z);
+        if(tube.connections[0] == ForgeDirection.UNKNOWN) {
+            render.renderStandardBlock(block, x, y, z);
         }
         else if(tube.connections[1] == ForgeDirection.UNKNOWN) {
-            return renderExitTube(tube, x, y, z);
+            renderExitTube(tube, x, y, z);
+        }
+        else if(tube.connections[0].getOpposite() == tube.connections[1]) {
+            renderStraightTube(tube, x, y, z);
+        }
+        else {
+            renderElbowTube(tube, x, y, z);
         }
 
-        render.renderStandardBlock(block, x, y, z);
         return true;
     }
 
@@ -112,25 +117,48 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         return true;
     }
 
+    public boolean renderElbowTube(TileEntityTube tube, int x, int y, int z) {
+        renderStraightTubeFace(x, y, z, tube.connections[0].getOpposite(),
+                                        tube.connections[1],  false);
+        renderStraightTubeFace(x, y, z, tube.connections[1].getOpposite(),
+                                        tube.connections[0],  false);
+        renderElbowInnerFace(x, y, z, tube.connections[0], tube.connections[1]);
+        renderElbowInnerFace(x, y, z, tube.connections[1], tube.connections[0]);
+
+        ForgeDirection elbowSide = tube.connections[0].getRotation(tube.connections[1]);
+        renderElbowTubeFace(x, y, z, elbowSide, tube.connections);
+        renderElbowTubeFace(x, y, z, elbowSide.getOpposite(), tube.connections);
+
+        return true;
+    }
+
     protected void renderStraightTubeFace(int x, int y, int z, ForgeDirection side, ForgeDirection pipeDirection, boolean completeTube) {
         double texTop = 0.0D / texSize;
         double texLeft = 68.0D / texSize;
         double texBottom = 16.0D / texSize;
         double texRight = 76.0D / texSize;
 
-        double[] topRight    = new double[0];
-        double[] bottomRight = new double[0];
-        double[] bottomLeft  = new double[0];
-        double[] topLeft     = new double[0];
+        double[] topRight    = new double[3];
+        double[] bottomRight = new double[3];
+        double[] bottomLeft  = new double[3];
+        double[] topLeft     = new double[3];
 
         Tessellator tess = Tessellator.instance;
 
-        if(side == ForgeDirection.EAST) {
+        if((side == ForgeDirection.EAST) || (side == ForgeDirection.WEST)) {
+            if(side == ForgeDirection.EAST) {
+                topRight[0] = bottomRight[0] = bottomLeft[0] = topLeft[0] = x + 0.75D;
+            }
+            else {
+                topRight[0] = bottomRight[0] = bottomLeft[0] = topLeft[0] = x + 0.25D;
+            }
+
             if((pipeDirection == ForgeDirection.NORTH) || (pipeDirection == ForgeDirection.SOUTH)){
-                topRight    = new double[]{ x + 0.75D, y + 0.75D, z + 0.0D};
-                bottomRight = new double[]{ x + 0.75D, y + 0.75D, z + 1.0D};
-                bottomLeft  = new double[]{ x + 0.75D, y + 0.25D, z + 1.0D};
-                topLeft     = new double[]{ x + 0.75D, y + 0.25D, z + 0.0D};
+                topLeft[1] = bottomLeft[1] = y + 0.25D;
+                topRight[1] = bottomRight[1] = y + 0.75D;
+
+                topLeft[2] = topRight[2] = z + 0.0D;
+                bottomLeft[2] = bottomRight[2] = z + 1.0D;
 
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.NORTH) {
@@ -143,11 +171,12 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                     }
                 }
             }
-            else {
-                topRight    = new double[]{ x + 0.75D, y + 1.0D, z + 0.25D};
-                bottomRight = new double[]{ x + 0.75D, y + 0.0D, z + 0.25D};
-                bottomLeft  = new double[]{ x + 0.75D, y + 0.0D, z + 0.75D};
-                topLeft     = new double[]{ x + 0.75D, y + 1.0D, z + 0.75D};
+            else if((pipeDirection == ForgeDirection.UP) || (pipeDirection == ForgeDirection.DOWN)){
+                topLeft[2] = bottomLeft[2] = z + 0.25D;
+                topRight[2] = bottomRight[2] = z + 0.75D;
+
+                topLeft[1] = topRight[1] = y + 0.0D;
+                bottomLeft[1] = bottomRight[1] = y + 1.0D;
 
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.UP) {
@@ -161,48 +190,20 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                 }
             }
         }
-        else if(side == ForgeDirection.WEST) {
-            if((pipeDirection == ForgeDirection.NORTH) || (pipeDirection == ForgeDirection.SOUTH)){
-                topRight    = new double[]{ x + 0.25D, y + 0.75D, z + 0.0D};
-                bottomRight = new double[]{ x + 0.25D, y + 0.75D, z + 1.0D};
-                bottomLeft  = new double[]{ x + 0.25D, y + 0.25D, z + 1.0D};
-                topLeft     = new double[]{ x + 0.25D, y + 0.25D, z + 0.0D};
-
-                if(!completeTube) {
-                    if(pipeDirection == ForgeDirection.NORTH) {
-                        bottomRight[2] = bottomLeft[2] = z + 0.75D;
-                        texBottom = 12.0D / texSize;
-                    }
-                    else {
-                        topRight[2] = topLeft[2] = z + 0.25D;
-                        texTop = 4.0D / texSize;
-                    }
-                }
+        else if((side == ForgeDirection.NORTH) || (side == ForgeDirection.SOUTH)) {
+            if(side == ForgeDirection.SOUTH) {
+                topRight[2] = bottomRight[2] = bottomLeft[2] = topLeft[2] = z + 0.75D;
             }
             else {
-                topRight    = new double[]{ x + 0.25D, y + 1.0D, z + 0.25D};
-                bottomRight = new double[]{ x + 0.25D, y + 0.0D, z + 0.25D};
-                bottomLeft  = new double[]{ x + 0.25D, y + 0.0D, z + 0.75D};
-                topLeft     = new double[]{ x + 0.25D, y + 1.0D, z + 0.75D};
-
-                if(!completeTube) {
-                    if(pipeDirection == ForgeDirection.UP) {
-                        bottomRight[1] = bottomLeft[1] = y + 0.25D;
-                        texBottom = 12.0D / texSize;
-                    }
-                    else {
-                        topRight[1] = topLeft[1] = y + 0.75D;
-                        texTop = 4.0D / texSize;
-                    }
-                }
+                topRight[2] = bottomRight[2] = bottomLeft[2] = topLeft[2] = z + 0.25D;
             }
-        }
-        else if(side == ForgeDirection.NORTH) {
+
             if((pipeDirection == ForgeDirection.WEST) || (pipeDirection == ForgeDirection.EAST)){
-                topRight    = new double[]{ x + 0.0D, y + 0.75D, z + 0.25D};
-                bottomRight = new double[]{ x + 1.0D, y + 0.75D, z + 0.25D};
-                bottomLeft  = new double[]{ x + 1.0D, y + 0.25D, z + 0.25D};
-                topLeft     = new double[]{ x + 0.0D, y + 0.25D, z + 0.25D};
+                topLeft[1] = bottomLeft[1] = y + 0.25D;
+                topRight[1] = bottomRight[1] = y + 0.75D;
+
+                topLeft[0] = topRight[0] = x + 0.0D;
+                bottomLeft[0] = bottomRight[0] = x + 1.0D;
 
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.WEST) {
@@ -215,11 +216,12 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                     }
                 }
             }
-            else {
-                topRight    = new double[]{ x + 0.25D, y + 1.0D, z + 0.25D};
-                bottomRight = new double[]{ x + 0.25D, y + 0.0D, z + 0.25D};
-                bottomLeft  = new double[]{ x + 0.75D, y + 0.0D, z + 0.25D};
-                topLeft     = new double[]{ x + 0.75D, y + 1.0D, z + 0.25D};
+            else if((pipeDirection == ForgeDirection.UP) || (pipeDirection == ForgeDirection.DOWN)){
+                topLeft[0] = bottomLeft[0] = x + 0.25D;
+                topRight[0] = bottomRight[0] = x + 0.75D;
+
+                topLeft[1] = topRight[1] = y + 0.0D;
+                bottomLeft[1] = bottomRight[1] = y + 1.0D;
 
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.UP) {
@@ -233,48 +235,20 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                 }
             }
         }
-        else if(side == ForgeDirection.SOUTH) {
-            if((pipeDirection == ForgeDirection.WEST) || (pipeDirection == ForgeDirection.EAST)){
-                topRight    = new double[]{ x + 0.0D, y + 0.75D, z + 0.75D};
-                bottomRight = new double[]{ x + 1.0D, y + 0.75D, z + 0.75D};
-                bottomLeft  = new double[]{ x + 1.0D, y + 0.25D, z + 0.75D};
-                topLeft     = new double[]{ x + 0.0D, y + 0.25D, z + 0.75D};
-
-                if(!completeTube) {
-                    if(pipeDirection == ForgeDirection.WEST) {
-                        bottomRight[0] = bottomLeft[0] = x + 0.75D;
-                        texBottom = 12.0D / texSize;
-                    }
-                    else {
-                        topRight[0] = topLeft[0] = x + 0.25D;
-                        texTop = 4.0D / texSize;
-                    }
-                }
+        else if((side == ForgeDirection.UP) || (side == ForgeDirection.DOWN)) {
+            if(side == ForgeDirection.UP) {
+                topRight[1] = bottomRight[1] = bottomLeft[1] = topLeft[1] = y + 0.75D;
             }
             else {
-                topRight    = new double[]{ x + 0.25D, y + 1.0D, z + 0.75D};
-                bottomRight = new double[]{ x + 0.25D, y + 0.0D, z + 0.75D};
-                bottomLeft  = new double[]{ x + 0.75D, y + 0.0D, z + 0.75D};
-                topLeft     = new double[]{ x + 0.75D, y + 1.0D, z + 0.75D};
-
-                if(!completeTube) {
-                    if(pipeDirection == ForgeDirection.UP) {
-                        bottomRight[1] = bottomLeft[1] = y + 0.25D;
-                        texBottom = 12.0D / texSize;
-                    }
-                    else {
-                        topRight[1] = topLeft[1] = y + 0.75D;
-                        texTop = 4.0D / texSize;
-                    }
-                }
+                topRight[1] = bottomRight[1] = bottomLeft[1] = topLeft[1] = y + 0.25;
             }
-        }
-        else if(side == ForgeDirection.UP) {
+
             if((pipeDirection == ForgeDirection.NORTH) || (pipeDirection == ForgeDirection.SOUTH)) {
-                topRight    = new double[]{ x + 0.75D, y + 0.75D, z + 0.0D};
-                bottomRight = new double[]{ x + 0.75D, y + 0.75D, z + 1.0D};
-                bottomLeft  = new double[]{ x + 0.25D, y + 0.75D, z + 1.0D};
-                topLeft     = new double[]{ x + 0.25D, y + 0.75D, z + 0.0D};
+                topLeft[0] = bottomLeft[0] = x + 0.25D;
+                topRight[0] = bottomRight[0] = x + 0.75D;
+
+                topLeft[2] = topRight[2] = z + 0.0D;
+                bottomLeft[2] = bottomRight[2] = z + 1.0D;
 
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.NORTH) {
@@ -287,47 +261,13 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                     }
                 }
             }
-            else {
-                topRight    = new double[]{ x + 0.0D, y + 0.75D, z + 0.75D};
-                bottomRight = new double[]{ x + 1.0D, y + 0.75D, z + 0.75D};
-                bottomLeft  = new double[]{ x + 1.0D, y + 0.75D, z + 0.25D};
-                topLeft     = new double[]{ x + 0.0D, y + 0.75D, z + 0.25D};
+            else
+            if((pipeDirection == ForgeDirection.EAST) || (pipeDirection == ForgeDirection.WEST)) {
+                topLeft[2] = bottomLeft[2] = z + 0.25D;
+                topRight[2] = bottomRight[2] = z + 0.75D;
 
-                if(!completeTube) {
-                    if(pipeDirection == ForgeDirection.WEST) {
-                        bottomRight[0] = bottomLeft[0] = x + 0.75D;
-                        texBottom = 12.0D / texSize;
-                    }
-                    else {
-                        topRight[0] = topLeft[0] = x + 0.25D;
-                        texTop = 4.0D / texSize;
-                    }
-                }
-            }
-        }
-        else if(side == ForgeDirection.DOWN) {
-            if((pipeDirection == ForgeDirection.NORTH) || (pipeDirection == ForgeDirection.SOUTH)) {
-                topRight    = new double[]{ x + 0.75D, y + 0.25D, z + 0.0D};
-                bottomRight = new double[]{ x + 0.75D, y + 0.25D, z + 1.0D};
-                bottomLeft  = new double[]{ x + 0.25D, y + 0.25D, z + 1.0D};
-                topLeft     = new double[]{ x + 0.25D, y + 0.25D, z + 0.0D};
-
-                if(!completeTube) {
-                    if(pipeDirection == ForgeDirection.NORTH) {
-                        bottomRight[2] = bottomLeft[2] = z + 0.75D;
-                        texBottom = 12.0D / texSize;
-                    }
-                    else {
-                        topRight[2] = topLeft[2] = z + 0.25D;
-                        texTop = 4.0D / texSize;
-                    }
-                }
-            }
-            else {
-                topRight    = new double[]{ x + 0.0D, y + 0.25D, z + 0.75D};
-                bottomRight = new double[]{ x + 1.0D, y + 0.25D, z + 0.75D};
-                bottomLeft  = new double[]{ x + 1.0D, y + 0.25D, z + 0.25D};
-                topLeft     = new double[]{ x + 0.0D, y + 0.25D, z + 0.25D};
+                topLeft[0] = topRight[0] = x + 0.0D;
+                bottomLeft[0] = bottomRight[0] = x + 1.0D;
 
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.WEST) {
@@ -400,6 +340,285 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                 bottomLeft  = new double[]{ x + 0.25D, y + 0.25D, z + 0.75D};
                 topLeft     = new double[]{ x + 0.25D, y + 0.25D, z + 0.25D};
             break;
+        }
+
+        Tessellator tess = Tessellator.instance;
+
+        tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
+        tess.addVertexWithUV(bottomRight[0], bottomRight[1], bottomRight[2], texRight, texBottom);
+        tess.addVertexWithUV( bottomLeft[0],  bottomLeft[1],  bottomLeft[2], texLeft,  texBottom);
+        tess.addVertexWithUV(    topLeft[0],     topLeft[1],     topLeft[2], texLeft,  texTop);
+        tess.addVertexWithUV(    topLeft[0],     topLeft[1],     topLeft[2], texLeft,  texTop);
+        tess.addVertexWithUV( bottomLeft[0],  bottomLeft[1],  bottomLeft[2], texLeft,  texBottom);
+        tess.addVertexWithUV(bottomRight[0], bottomRight[1], bottomRight[2], texRight, texBottom);
+        tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
+    }
+
+    protected void renderElbowTubeFace(int x, int y, int z, ForgeDirection side, ForgeDirection[] pipeDirections) {
+        double texTop = 0.0D / texSize;
+        double texLeft = 32.0D / texSize;
+        double texBottom = 12.0D / texSize;
+        double texRight = 44.0D / texSize;
+
+        double[] topRight    = new double[3];
+        double[] bottomRight = new double[3];
+        double[] bottomLeft  = new double[3];
+        double[] topLeft     = new double[3];
+
+        if((side == ForgeDirection.UP) || (side == ForgeDirection.DOWN)) {
+            if(side == ForgeDirection.UP) {
+                topRight[1] = bottomRight[1] = bottomLeft[1] = topLeft[1] = y + 0.75D;
+            }
+            else {
+                topRight[1] = bottomRight[1] = bottomLeft[1] = topLeft[1] = y + 0.25D;
+            }
+
+            if((pipeDirections[0] == ForgeDirection.NORTH) &&
+               (pipeDirections[1] == ForgeDirection.EAST)) {
+                topRight[0] = topLeft[0] = x + 1.0D;
+                bottomRight[0] = bottomLeft[0] = x + 0.25D;
+
+                topLeft[2] = bottomLeft[2] = z + 0.0D;
+                topRight[2] = bottomRight[2] = z + 0.75D;
+            }
+            else if((pipeDirections[0] == ForgeDirection.SOUTH) &&
+               (pipeDirections[1] == ForgeDirection.WEST)) {
+                topRight[0] = topLeft[0] = x + 0.0D;
+                bottomRight[0] = bottomLeft[0] = x + 0.75D;
+
+                topLeft[2] = bottomLeft[2] = z + 1.0D;
+                topRight[2] = bottomRight[2] = z + 0.25D;
+            }
+            else if((pipeDirections[0] == ForgeDirection.NORTH) &&
+               (pipeDirections[1] == ForgeDirection.WEST)) {
+                topRight[2] = topLeft[2] = z + 0.0D;
+                bottomRight[2] = bottomLeft[2] = z + 0.75D;
+
+                topLeft[0] = bottomLeft[0] = x + 0.0D;
+                topRight[0] = bottomRight[0] = x + 0.75D;
+            }
+            else if((pipeDirections[0] == ForgeDirection.SOUTH) &&
+               (pipeDirections[1] == ForgeDirection.EAST)) {
+                topRight[2] = topLeft[2] = z + 1.0D;
+                bottomRight[2] = bottomLeft[2] = z + 0.25D;
+
+                topLeft[0] = bottomLeft[0] = x + 1.0D;
+                topRight[0] = bottomRight[0] = x + 0.25D;
+            }
+        }
+        else if((side == ForgeDirection.NORTH) || (side == ForgeDirection.SOUTH)) {
+            if(side == ForgeDirection.NORTH) {
+                topRight[2] = bottomRight[2] = bottomLeft[2] = topLeft[2] = z + 0.25D;
+            }
+            else {
+                topRight[2] = bottomRight[2] = bottomLeft[2] = topLeft[2] = z + 0.75D;
+            }
+
+            if((pipeDirections[0] == ForgeDirection.UP) &&
+               (pipeDirections[1] == ForgeDirection.EAST)) {
+                topRight[0] = topLeft[0] = x + 1.0D;
+                bottomRight[0] = bottomLeft[0] = x + 0.25D;
+
+                topLeft[1] = bottomLeft[1] = y + 1.0D;
+                topRight[1] = bottomRight[1] = y + 0.25D;
+            }
+            else if((pipeDirections[0] == ForgeDirection.DOWN) &&
+               (pipeDirections[1] == ForgeDirection.WEST)) {
+                topRight[0] = topLeft[0] = x + 0.0D;
+                bottomRight[0] = bottomLeft[0] = x + 0.75D;
+
+                topLeft[1] = bottomLeft[1] = y + 0.0D;
+                topRight[1] = bottomRight[1] = y + 0.75D;
+            }
+            else if((pipeDirections[0] == ForgeDirection.UP) &&
+               (pipeDirections[1] == ForgeDirection.WEST)) {
+                topRight[1] = topLeft[1] = y + 1.0D;
+                bottomRight[1] = bottomLeft[1] = y + 0.25D;
+
+                topLeft[2] = bottomLeft[2] = z + 0.0D;
+                topRight[2] = bottomRight[2] = z + 0.75D;
+            }
+            else if((pipeDirections[0] == ForgeDirection.DOWN) &&
+               (pipeDirections[1] == ForgeDirection.EAST)) {
+                topRight[1] = topLeft[1] = y + 0.0D;
+                bottomRight[1] = bottomLeft[1] = y + 0.75D;
+
+                topLeft[2] = bottomLeft[2] = z + 1.0D;
+                topRight[2] = bottomRight[2] = z + 0.25D;
+            }
+        }
+        else if((side == ForgeDirection.EAST) || (side == ForgeDirection.WEST)) {
+            if(side == ForgeDirection.EAST) {
+                topRight[0] = bottomRight[0] = bottomLeft[0] = topLeft[0] = x + 0.75D;
+            }
+            else {
+                topRight[0] = bottomRight[0] = bottomLeft[0] = topLeft[0] = x + 0.25D;
+            }
+
+            if((pipeDirections[0] == ForgeDirection.UP) &&
+               (pipeDirections[1] == ForgeDirection.NORTH)) {
+                topRight[2] = topLeft[2] = z + 0.0D;
+                bottomRight[2] = bottomLeft[2] = z + 0.75D;
+
+                topLeft[1] = bottomLeft[1] = y + 1.0D;
+                topRight[1] = bottomRight[1] = y + 0.25D;
+            }
+            else if((pipeDirections[0] == ForgeDirection.DOWN) &&
+               (pipeDirections[1] == ForgeDirection.SOUTH)) {
+                topRight[2] = topLeft[2] = z + 1.0D;
+                bottomRight[2] = bottomLeft[2] = z + 0.25D;
+
+                topLeft[1] = bottomLeft[1] = y + 0.0D;
+                topRight[1] = bottomRight[1] = y + 0.75D;
+            }
+            else if((pipeDirections[0] == ForgeDirection.UP) &&
+               (pipeDirections[1] == ForgeDirection.SOUTH)) {
+                topRight[2] = topLeft[2] = z + 1.0D;
+                bottomRight[2] = bottomLeft[2] = z + 0.25D;
+
+                topLeft[1] = bottomLeft[1] = y + 1.0D;
+                topRight[1] = bottomRight[1] = y + 0.25D;
+            }
+            else if((pipeDirections[0] == ForgeDirection.DOWN) &&
+               (pipeDirections[1] == ForgeDirection.NORTH)) {
+                topRight[2] = topLeft[2] = z + 0.0D;
+                bottomRight[2] = bottomLeft[2] = z + 0.75D;
+
+                topLeft[1] = bottomLeft[1] = y + 0.0D;
+                topRight[1] = bottomRight[1] = y + 0.75D;
+            }
+        }
+
+        Tessellator tess = Tessellator.instance;
+
+        tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
+        tess.addVertexWithUV(bottomRight[0], bottomRight[1], bottomRight[2], texRight, texBottom);
+        tess.addVertexWithUV( bottomLeft[0],  bottomLeft[1],  bottomLeft[2], texLeft,  texBottom);
+        tess.addVertexWithUV(    topLeft[0],     topLeft[1],     topLeft[2], texLeft,  texTop);
+        tess.addVertexWithUV(    topLeft[0],     topLeft[1],     topLeft[2], texLeft,  texTop);
+        tess.addVertexWithUV( bottomLeft[0],  bottomLeft[1],  bottomLeft[2], texLeft,  texBottom);
+        tess.addVertexWithUV(bottomRight[0], bottomRight[1], bottomRight[2], texRight, texBottom);
+        tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
+    }
+
+    protected void renderElbowInnerFace(int x, int y, int z, ForgeDirection side, ForgeDirection pipeDirection) {
+        double texTop = 0.0D / texSize;
+        double texLeft = 68.0D / texSize;
+        double texBottom = 4.0D / texSize;
+        double texRight = 76.0D / texSize;
+
+        double[] topRight    = new double[3];
+        double[] bottomRight = new double[3];
+        double[] bottomLeft  = new double[3];
+        double[] topLeft     = new double[3];
+
+        if((side == ForgeDirection.NORTH) || (side == ForgeDirection.SOUTH)) {
+            if(side == ForgeDirection.NORTH) {
+                topRight[2] = bottomRight[2] = bottomLeft[2] = topLeft[2] = z + 0.25D;
+            }
+            else {
+                topRight[2] = bottomRight[2] = bottomLeft[2] = topLeft[2] = z + 0.75D;
+            }
+
+            if((pipeDirection == ForgeDirection.WEST) || (pipeDirection == ForgeDirection.EAST)) {
+                topLeft[1] = bottomLeft[1] = y + 0.75D;
+                topRight[1] = bottomRight[1] = y +  0.25D;
+
+                if(pipeDirection == ForgeDirection.EAST) {
+                    topLeft[0] = topRight[0] = x + 1.0D;
+                    bottomLeft[0] = bottomRight[0] = x + 0.75D;
+                }
+                else {
+                    topLeft[0] = topRight[0] = x + 0.0D;
+                    bottomLeft[0] = bottomRight[0] = x + 0.25D;
+                }
+            }
+            else
+            if((pipeDirection == ForgeDirection.UP) || (pipeDirection == ForgeDirection.DOWN)) {
+                topLeft[0] = bottomLeft[0] = x + 0.75D;
+                topRight[0] = bottomRight[0] = x + 0.25D;
+
+                if(pipeDirection == ForgeDirection.UP) {
+                    topLeft[1] = topRight[1] = y + 1.0D;
+                    bottomLeft[1] = bottomRight[1] = y + 0.75D;
+                }
+                else {
+                    topLeft[1] = topRight[1] = y + 0.0D;
+                    bottomLeft[1] = bottomRight[1] = y + 0.25D;
+                }
+            }
+        }
+        else if((side == ForgeDirection.EAST) || (side == ForgeDirection.WEST)) {
+            if(side == ForgeDirection.EAST) {
+                topRight[0] = bottomRight[0] = bottomLeft[0] = topLeft[0] = x + 0.75D;
+            }
+            else {
+                topRight[0] = bottomRight[0] = bottomLeft[0] = topLeft[0] = x + 0.25D;
+            }
+
+            if((pipeDirection == ForgeDirection.NORTH) || (pipeDirection == ForgeDirection.SOUTH)) {
+                topLeft[1] = bottomLeft[1] = y + 0.75D;
+                topRight[1] = bottomRight[1] = y + 0.25D;
+
+                if(pipeDirection == ForgeDirection.SOUTH) {
+                    topLeft[2] = topRight[2] = z + 1.0D;
+                    bottomLeft[2] = bottomRight[2] = z + 0.75D;
+                }
+                else {
+                    topLeft[2] = topRight[2] = z + 0.0D;
+                    bottomLeft[2] = bottomRight[2] = z + 0.25D;
+                }
+            }
+            else
+            if((pipeDirection == ForgeDirection.UP) || (pipeDirection == ForgeDirection.DOWN)) {
+                topLeft[2] = bottomLeft[2] = z + 0.75D;
+                topRight[2] = bottomRight[2] = z +  0.25D;
+
+                if(pipeDirection == ForgeDirection.UP) {
+                    topLeft[1] = topRight[1] = y + 1.0D;
+                    bottomLeft[1] = bottomRight[1] = y + 0.75D;
+                }
+                else {
+                    topLeft[1] = topRight[1] = y + 0.0D;
+                    bottomLeft[1] = bottomRight[1] = y + 0.25D;
+                }
+            }
+        }
+        else if((side == ForgeDirection.UP) || (side == ForgeDirection.DOWN)) {
+            if(side == ForgeDirection.UP) {
+                topRight[1] = bottomRight[1] = bottomLeft[1] = topLeft[1] = y + 0.75D;
+            }
+            else {
+                topRight[1] = bottomRight[1] = bottomLeft[1] = topLeft[1] = y + 0.25D;
+            }
+
+            if((pipeDirection == ForgeDirection.NORTH) || (pipeDirection == ForgeDirection.SOUTH)) {
+                topLeft[0] = bottomLeft[0] = x + 0.75D;
+                topRight[0] = bottomRight[0] = x + 0.25D;
+
+                if(pipeDirection == ForgeDirection.SOUTH) {
+                    topLeft[2] = topRight[2] = z + 1.0D;
+                    bottomLeft[2] = bottomRight[2] = z + 0.75D;
+                }
+                else {
+                    topLeft[2] = topRight[2] = z + 0.0D;
+                    bottomLeft[2] = bottomRight[2] = z + 0.25D;
+                }
+            }
+            else
+            if((pipeDirection == ForgeDirection.WEST) || (pipeDirection == ForgeDirection.EAST)) {
+                topLeft[2] = bottomLeft[2] = z + 0.75D;
+                topRight[2] = bottomRight[2] = z +  0.25D;
+
+                if(pipeDirection == ForgeDirection.EAST) {
+                    topLeft[0] = topRight[0] = x + 1.0D;
+                    bottomLeft[0] = bottomRight[0] = x + 0.75D;
+                }
+                else {
+                    topLeft[0] = topRight[0] = x + 0.0D;
+                    bottomLeft[0] = bottomRight[0] = x + 0.25D;
+                }
+            }
         }
 
         Tessellator tess = Tessellator.instance;
