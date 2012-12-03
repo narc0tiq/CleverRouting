@@ -26,6 +26,7 @@ public class CommonProxy {
         tubeBlock = new BlockTube(tubeID.getInt());
 
         GameRegistry.registerBlock(tubeBlock);
+        GameRegistry.registerTileEntity(TileEntityTube.class, "crs.tube.entity");
     }
 
     public void initItems(Configuration config) {
