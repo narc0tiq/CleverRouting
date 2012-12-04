@@ -3,6 +3,7 @@ package crs;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 
+import net.minecraft.src.AxisAlignedBB;
 import net.minecraft.src.IBlockAccess;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
@@ -16,8 +17,6 @@ public class BlockTube extends BlockGeneric {
         super(blockID);
         this.setBlockBounds(0.25F, 0.25F, 0.25F, 0.75F, 0.75F, 0.75F);
     }
-
-    //TODO: Need to override getSelectedBoundingBoxFromPool later
 
     @Override
     public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
@@ -40,6 +39,13 @@ public class BlockTube extends BlockGeneric {
                 case NORTH: this.minZ = 0.0F; break;
             }
         }
+    }
+
+    @Override
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
+        return AxisAlignedBB.getAABBPool().addOrModifyAABBInPool(
+            (double)x + 0.25D, (double)y + 0.25D, (double)z + 0.25D,
+            (double)x + 0.75D, (double)y + 0.75D, (double)z + 0.75D);
     }
 
     @Override
@@ -103,5 +109,17 @@ public class BlockTube extends BlockGeneric {
     @SideOnly(Side.CLIENT)
     public int getBlockTexture(IBlockAccess world, int x, int y, int z, int side) {
         return 0;
+    }
+
+    @Override
+    public void onNeighborBlockChange(World world, int x, int y, int z, int otherBlockID) {
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+
+        if(!(te instanceof TileEntityTube)) {
+            return; // WTF happened?
+        }
+
+        ((TileEntityTube)te).updateConnections();
+        world.markBlockForUpdate(x, y, z);
     }
 }

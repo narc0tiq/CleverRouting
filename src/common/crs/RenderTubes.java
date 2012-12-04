@@ -35,18 +35,19 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         }
         TileEntityTube tube = (TileEntityTube)te;
 
+        int brightness = block.getMixedBrightnessForBlock(world, x, y, z);
         ForgeHooksClient.bindTexture("/crs-gfx/blocks.png", 0);
         if(tube.connections[0] == ForgeDirection.UNKNOWN) {
             render.renderStandardBlock(block, x, y, z);
         }
         else if(tube.connections[1] == ForgeDirection.UNKNOWN) {
-            renderExitTube(tube, x, y, z);
+            renderExitTube(tube, x, y, z, brightness);
         }
         else if(tube.connections[0].getOpposite() == tube.connections[1]) {
-            renderStraightTube(tube, x, y, z);
+            renderStraightTube(tube, x, y, z, brightness);
         }
         else {
-            renderElbowTube(tube, x, y, z);
+            renderElbowTube(tube, x, y, z, brightness);
         }
 
         return true;
@@ -61,78 +62,78 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
     }
 // }
 
-    public boolean renderStraightTube(TileEntityTube tube, int x, int y, int z) {
+    public boolean renderStraightTube(TileEntityTube tube, int x, int y, int z, int brightness) {
         switch(tube.connections[0]) {
             case NORTH:
             case SOUTH:
-                renderStraightTubeFace(x, y, z, ForgeDirection.EAST, tube.connections[0], true);
-                renderStraightTubeFace(x, y, z, ForgeDirection.WEST, tube.connections[0], true);
-                renderStraightTubeFace(x, y, z, ForgeDirection.UP,   tube.connections[0], true);
-                renderStraightTubeFace(x, y, z, ForgeDirection.DOWN, tube.connections[0], true);
+                renderStraightTubeFace(x, y, z, ForgeDirection.EAST, tube.connections[0], true, brightness);
+                renderStraightTubeFace(x, y, z, ForgeDirection.WEST, tube.connections[0], true, brightness);
+                renderStraightTubeFace(x, y, z, ForgeDirection.UP,   tube.connections[0], true, brightness);
+                renderStraightTubeFace(x, y, z, ForgeDirection.DOWN, tube.connections[0], true, brightness);
                 break;
             case UP:
             case DOWN:
-                renderStraightTubeFace(x, y, z, ForgeDirection.EAST,  tube.connections[0], true);
-                renderStraightTubeFace(x, y, z, ForgeDirection.WEST,  tube.connections[0], true);
-                renderStraightTubeFace(x, y, z, ForgeDirection.NORTH, tube.connections[0], true);
-                renderStraightTubeFace(x, y, z, ForgeDirection.SOUTH, tube.connections[0], true);
+                renderStraightTubeFace(x, y, z, ForgeDirection.EAST,  tube.connections[0], true, brightness);
+                renderStraightTubeFace(x, y, z, ForgeDirection.WEST,  tube.connections[0], true, brightness);
+                renderStraightTubeFace(x, y, z, ForgeDirection.NORTH, tube.connections[0], true, brightness);
+                renderStraightTubeFace(x, y, z, ForgeDirection.SOUTH, tube.connections[0], true, brightness);
                 break;
             case EAST:
             case WEST:
-                renderStraightTubeFace(x, y, z, ForgeDirection.NORTH, tube.connections[0], true);
-                renderStraightTubeFace(x, y, z, ForgeDirection.SOUTH, tube.connections[0], true);
-                renderStraightTubeFace(x, y, z, ForgeDirection.UP,    tube.connections[0], true);
-                renderStraightTubeFace(x, y, z, ForgeDirection.DOWN,  tube.connections[0], true);
+                renderStraightTubeFace(x, y, z, ForgeDirection.NORTH, tube.connections[0], true, brightness);
+                renderStraightTubeFace(x, y, z, ForgeDirection.SOUTH, tube.connections[0], true, brightness);
+                renderStraightTubeFace(x, y, z, ForgeDirection.UP,    tube.connections[0], true, brightness);
+                renderStraightTubeFace(x, y, z, ForgeDirection.DOWN,  tube.connections[0], true, brightness);
                 break;
         }
 
         return true;
     }
 
-    public boolean renderExitTube(TileEntityTube tube, int x, int y, int z) {
-        renderTubeExitFace(x, y, z, tube.connections[0].getOpposite());
+    public boolean renderExitTube(TileEntityTube tube, int x, int y, int z, int brightness) {
+        renderTubeExitFace(x, y, z, tube.connections[0].getOpposite(), brightness);
 
         if((tube.connections[0] == ForgeDirection.NORTH) || 
            (tube.connections[0] == ForgeDirection.SOUTH)) {
-            renderStraightTubeFace(x, y, z, ForgeDirection.EAST, tube.connections[0], false);
-            renderStraightTubeFace(x, y, z, ForgeDirection.WEST, tube.connections[0], false);
-            renderStraightTubeFace(x, y, z, ForgeDirection.UP,   tube.connections[0], false);
-            renderStraightTubeFace(x, y, z, ForgeDirection.DOWN, tube.connections[0], false);
+            renderStraightTubeFace(x, y, z, ForgeDirection.EAST, tube.connections[0], false, brightness);
+            renderStraightTubeFace(x, y, z, ForgeDirection.WEST, tube.connections[0], false, brightness);
+            renderStraightTubeFace(x, y, z, ForgeDirection.UP,   tube.connections[0], false, brightness);
+            renderStraightTubeFace(x, y, z, ForgeDirection.DOWN, tube.connections[0], false, brightness);
         }
         else if((tube.connections[0] == ForgeDirection.UP) || 
                 (tube.connections[0] == ForgeDirection.DOWN)) {
-            renderStraightTubeFace(x, y, z, ForgeDirection.EAST,  tube.connections[0], false);
-            renderStraightTubeFace(x, y, z, ForgeDirection.WEST,  tube.connections[0], false);
-            renderStraightTubeFace(x, y, z, ForgeDirection.NORTH, tube.connections[0], false);
-            renderStraightTubeFace(x, y, z, ForgeDirection.SOUTH, tube.connections[0], false);
+            renderStraightTubeFace(x, y, z, ForgeDirection.EAST,  tube.connections[0], false, brightness);
+            renderStraightTubeFace(x, y, z, ForgeDirection.WEST,  tube.connections[0], false, brightness);
+            renderStraightTubeFace(x, y, z, ForgeDirection.NORTH, tube.connections[0], false, brightness);
+            renderStraightTubeFace(x, y, z, ForgeDirection.SOUTH, tube.connections[0], false, brightness);
         }
         else if((tube.connections[0] == ForgeDirection.EAST) || 
                 (tube.connections[0] == ForgeDirection.WEST)) {
-            renderStraightTubeFace(x, y, z, ForgeDirection.NORTH, tube.connections[0], false);
-            renderStraightTubeFace(x, y, z, ForgeDirection.SOUTH, tube.connections[0], false);
-            renderStraightTubeFace(x, y, z, ForgeDirection.UP,    tube.connections[0], false);
-            renderStraightTubeFace(x, y, z, ForgeDirection.DOWN,  tube.connections[0], false);
+            renderStraightTubeFace(x, y, z, ForgeDirection.NORTH, tube.connections[0], false, brightness);
+            renderStraightTubeFace(x, y, z, ForgeDirection.SOUTH, tube.connections[0], false, brightness);
+            renderStraightTubeFace(x, y, z, ForgeDirection.UP,    tube.connections[0], false, brightness);
+            renderStraightTubeFace(x, y, z, ForgeDirection.DOWN,  tube.connections[0], false, brightness);
         }
 
         return true;
     }
 
-    public boolean renderElbowTube(TileEntityTube tube, int x, int y, int z) {
+    public boolean renderElbowTube(TileEntityTube tube, int x, int y, int z, int brightness) {
         renderStraightTubeFace(x, y, z, tube.connections[0].getOpposite(),
-                                        tube.connections[1],  false);
+                                        tube.connections[1],  false, brightness);
         renderStraightTubeFace(x, y, z, tube.connections[1].getOpposite(),
-                                        tube.connections[0],  false);
-        renderElbowInnerFace(x, y, z, tube.connections[0], tube.connections[1]);
-        renderElbowInnerFace(x, y, z, tube.connections[1], tube.connections[0]);
+                                        tube.connections[0],  false, brightness);
+        renderElbowInnerFace(x, y, z, tube.connections[0], tube.connections[1], brightness);
+        renderElbowInnerFace(x, y, z, tube.connections[1], tube.connections[0], brightness);
 
         ForgeDirection elbowSide = tube.connections[0].getRotation(tube.connections[1]);
-        renderElbowTubeFace(x, y, z, elbowSide, tube.connections);
-        renderElbowTubeFace(x, y, z, elbowSide.getOpposite(), tube.connections);
+        renderElbowTubeFace(x, y, z, elbowSide, tube.connections, brightness);
+        renderElbowTubeFace(x, y, z, elbowSide.getOpposite(), tube.connections, brightness);
 
         return true;
     }
 
-    protected void renderStraightTubeFace(int x, int y, int z, ForgeDirection side, ForgeDirection pipeDirection, boolean completeTube) {
+    protected void renderStraightTubeFace(int x, int y, int z, ForgeDirection side, ForgeDirection pipeDirection, boolean completeTube, int brightness) {
         double texTop = 0.0D / texSize;
         double texLeft = 68.0D / texSize;
         double texBottom = 16.0D / texSize;
@@ -142,8 +143,6 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         double[] bottomRight = new double[3];
         double[] bottomLeft  = new double[3];
         double[] topLeft     = new double[3];
-
-        Tessellator tess = Tessellator.instance;
 
         if((side == ForgeDirection.EAST) || (side == ForgeDirection.WEST)) {
             if(side == ForgeDirection.EAST) {
@@ -180,12 +179,12 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
 
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.UP) {
-                        bottomRight[1] = bottomLeft[1] = y + 0.25D;
-                        texBottom = 12.0D / texSize;
+                        topRight[1] = topLeft[1] = y + 0.25D;
+                        texTop = 4.0D / texSize;
                     }
                     else {
-                        topRight[1] = topLeft[1] = y + 0.75D;
-                        texTop = 4.0D / texSize;
+                        bottomRight[1] = bottomLeft[1] = y + 0.75D;
+                        texBottom = 12.0D / texSize;
                     }
                 }
             }
@@ -225,12 +224,12 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
 
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.UP) {
-                        bottomRight[1] = bottomLeft[1] = y + 0.25D;
-                        texBottom = 12.0D / texSize;
+                        topRight[1] = topLeft[1] = y + 0.25D;
+                        texTop = 4.0D / texSize;
                     }
                     else {
-                        topRight[1] = topLeft[1] = y + 0.75D;
-                        texTop = 4.0D / texSize;
+                        bottomRight[1] = bottomLeft[1] = y + 0.75D;
+                        texBottom = 12.0D / texSize;
                     }
                 }
             }
@@ -282,6 +281,11 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
             }
         }
 
+        Tessellator tess = Tessellator.instance;
+        tess.setBrightness(brightness);
+        float colorMult = getColorMultForFace(side);
+        tess.setColorOpaque_F(colorMult, colorMult, colorMult);
+
         tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
         tess.addVertexWithUV(bottomRight[0], bottomRight[1], bottomRight[2], texRight, texBottom);
         tess.addVertexWithUV( bottomLeft[0],  bottomLeft[1],  bottomLeft[2], texLeft,  texBottom);
@@ -292,7 +296,7 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
     }
 
-    public void renderTubeExitFace(int x, int y, int z, ForgeDirection side) {
+    public void renderTubeExitFace(int x, int y, int z, ForgeDirection side, int brightness) {
         double texTop = 4.0D / texSize;
         double texLeft = 20.0D / texSize;
         double texBottom = 12.0D / texSize;
@@ -343,6 +347,9 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         }
 
         Tessellator tess = Tessellator.instance;
+        tess.setBrightness(brightness);
+        float colorMult = getColorMultForFace(side);
+        tess.setColorOpaque_F(colorMult, colorMult, colorMult);
 
         tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
         tess.addVertexWithUV(bottomRight[0], bottomRight[1], bottomRight[2], texRight, texBottom);
@@ -354,7 +361,7 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
     }
 
-    protected void renderElbowTubeFace(int x, int y, int z, ForgeDirection side, ForgeDirection[] pipeDirections) {
+    protected void renderElbowTubeFace(int x, int y, int z, ForgeDirection side, ForgeDirection[] pipeDirections, int brightness) {
         double texTop = 0.0D / texSize;
         double texLeft = 32.0D / texSize;
         double texBottom = 12.0D / texSize;
@@ -435,16 +442,16 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                 topRight[1] = topLeft[1] = y + 1.0D;
                 bottomRight[1] = bottomLeft[1] = y + 0.25D;
 
-                topLeft[2] = bottomLeft[2] = z + 0.0D;
-                topRight[2] = bottomRight[2] = z + 0.75D;
+                topLeft[0] = bottomLeft[0] = x + 0.0D;
+                topRight[0] = bottomRight[0] = x + 0.75D;
             }
             else if((pipeDirections[0] == ForgeDirection.DOWN) &&
                (pipeDirections[1] == ForgeDirection.EAST)) {
                 topRight[1] = topLeft[1] = y + 0.0D;
                 bottomRight[1] = bottomLeft[1] = y + 0.75D;
 
-                topLeft[2] = bottomLeft[2] = z + 1.0D;
-                topRight[2] = bottomRight[2] = z + 0.25D;
+                topLeft[0] = bottomLeft[0] = x + 1.0D;
+                topRight[0] = bottomRight[0] = x + 0.25D;
             }
         }
         else if((side == ForgeDirection.EAST) || (side == ForgeDirection.WEST)) {
@@ -490,6 +497,9 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         }
 
         Tessellator tess = Tessellator.instance;
+        tess.setBrightness(brightness);
+        float colorMult = getColorMultForFace(side);
+        tess.setColorOpaque_F(colorMult, colorMult, colorMult);
 
         tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
         tess.addVertexWithUV(bottomRight[0], bottomRight[1], bottomRight[2], texRight, texBottom);
@@ -501,7 +511,7 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
     }
 
-    protected void renderElbowInnerFace(int x, int y, int z, ForgeDirection side, ForgeDirection pipeDirection) {
+    protected void renderElbowInnerFace(int x, int y, int z, ForgeDirection side, ForgeDirection pipeDirection, int brightness) {
         double texTop = 0.0D / texSize;
         double texLeft = 68.0D / texSize;
         double texBottom = 4.0D / texSize;
@@ -622,6 +632,9 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         }
 
         Tessellator tess = Tessellator.instance;
+        tess.setBrightness(brightness);
+        float colorMult = getColorMultForFace(side);
+        tess.setColorOpaque_F(colorMult, colorMult, colorMult);
 
         tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
         tess.addVertexWithUV(bottomRight[0], bottomRight[1], bottomRight[2], texRight, texBottom);
@@ -631,5 +644,17 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         tess.addVertexWithUV( bottomLeft[0],  bottomLeft[1],  bottomLeft[2], texLeft,  texBottom);
         tess.addVertexWithUV(bottomRight[0], bottomRight[1], bottomRight[2], texRight, texBottom);
         tess.addVertexWithUV(   topRight[0],    topRight[1],    topRight[2], texRight, texTop);
+    }
+
+    public float getColorMultForFace(ForgeDirection face) {
+        if(face == ForgeDirection.UP) {
+            return 0.9F;
+        }
+        else if(face == ForgeDirection.DOWN) {
+            return 0.7F;
+        }
+        else {
+            return 0.8F;
+        }
     }
 }

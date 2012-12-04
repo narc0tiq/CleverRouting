@@ -19,7 +19,10 @@ import net.minecraftforge.common.Configuration;
     )
 @NetworkMod(
         clientSideRequired = true,
-        versionBounds = "%conf:VERSION_BOUNDS%"
+        serverSideRequired = false,
+        versionBounds = "%conf:VERSION_BOUNDS%",
+        channels = { CommonProxy.channelName },
+        packetHandler = PacketHandler.class
     )
 public class CleverRouting {
     public static boolean DEBUG_NETWORK = true;

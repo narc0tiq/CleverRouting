@@ -1,18 +1,20 @@
 package crs;
 
-import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 
 import net.minecraftforge.client.MinecraftForgeClient;
 
+import net.minecraft.src.World;
+
 public class ClientProxy extends CommonProxy {
     public static RenderTubes tubeRenderer;
 
+    @Override
     public void init() {
         super.init();
 
         preloadTextures();
-        initLanguage();
         initRenderers();
     }
 
@@ -21,13 +23,13 @@ public class ClientProxy extends CommonProxy {
         MinecraftForgeClient.preloadTexture("/crs-gfx/items.png");
     }
 
-    public void initLanguage() {
-        LanguageRegistry.addName(CommonProxy.tubeBlock, "Pneumatic Tube Block");
-        LanguageRegistry.addName(CommonProxy.tubeStone, "Stone Pneumatic Tube");
-    }
-
     public void initRenderers() {
         tubeRenderer = new RenderTubes(RenderingRegistry.getNextAvailableRenderId());
         RenderingRegistry.registerBlockHandler(tubeRenderer);
+    }
+
+    @Override
+    public World getClientWorld() {
+        return FMLClientHandler.instance().getClient().theWorld;
     }
 }
