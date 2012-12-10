@@ -14,6 +14,7 @@ import net.minecraftforge.common.ForgeDirection;
 public class RenderTubes implements ISimpleBlockRenderingHandler {
     public int renderID = -1;
     public double texSize = 256.0D;
+    public double tubeMaterialOffset = 0.0D; // in texels, which are the same as pixels for a 256x256px texture
 
     public RenderTubes(int renderID) {
         this.renderID = renderID;
@@ -34,6 +35,12 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
             return false; // dafuq?
         }
         TileEntityTube tube = (TileEntityTube)te;
+        if(tube.material == TileEntityTube.MATERIAL_GOLD) {
+            this.tubeMaterialOffset = 16.0D;
+        }
+        else if(tube.material == TileEntityTube.MATERIAL_BRASS) {
+            this.tubeMaterialOffset = 32.0D;
+        }
 
         int brightness = block.getMixedBrightnessForBlock(world, x, y, z);
         ForgeHooksClient.bindTexture("/crs-gfx/blocks.png", 0);
@@ -134,10 +141,10 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
     }
 
     protected void renderStraightTubeFace(int x, int y, int z, ForgeDirection side, ForgeDirection pipeDirection, boolean completeTube, int brightness) {
-        double texTop = 0.0D / texSize;
-        double texLeft = 68.0D / texSize;
-        double texBottom = 16.0D / texSize;
-        double texRight = 76.0D / texSize;
+        double texTop = (tubeMaterialOffset + 0.0D) / texSize;
+        double texBottom = (tubeMaterialOffset + 16.0D) / texSize;
+        double texLeft = 52.0D / texSize;
+        double texRight = 60.0D / texSize;
 
         double[] topRight    = new double[3];
         double[] bottomRight = new double[3];
@@ -162,11 +169,11 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.NORTH) {
                         bottomRight[2] = bottomLeft[2] = z + 0.75D;
-                        texBottom = 12.0D / texSize;
+                        texBottom = (tubeMaterialOffset + 12.0D) / texSize;
                     }
                     else {
                         topRight[2] = topLeft[2] = z + 0.25D;
-                        texTop = 4.0D / texSize;
+                        texTop = (tubeMaterialOffset + 4.0D) / texSize;
                     }
                 }
             }
@@ -180,11 +187,11 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.UP) {
                         topRight[1] = topLeft[1] = y + 0.25D;
-                        texTop = 4.0D / texSize;
+                        texTop = (tubeMaterialOffset + 4.0D) / texSize;
                     }
                     else {
                         bottomRight[1] = bottomLeft[1] = y + 0.75D;
-                        texBottom = 12.0D / texSize;
+                        texBottom = (tubeMaterialOffset + 12.0D) / texSize;
                     }
                 }
             }
@@ -207,11 +214,11 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.WEST) {
                         bottomRight[0] = bottomLeft[0] = x + 0.75D;
-                        texBottom = 12.0D / texSize;
+                        texBottom = (tubeMaterialOffset + 12.0D) / texSize;
                     }
                     else {
                         topRight[0] = topLeft[0] = x + 0.25D;
-                        texTop = 4.0D / texSize;
+                        texTop = (tubeMaterialOffset + 4.0D) / texSize;
                     }
                 }
             }
@@ -225,11 +232,11 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.UP) {
                         topRight[1] = topLeft[1] = y + 0.25D;
-                        texTop = 4.0D / texSize;
+                        texTop = (tubeMaterialOffset + 4.0D) / texSize;
                     }
                     else {
                         bottomRight[1] = bottomLeft[1] = y + 0.75D;
-                        texBottom = 12.0D / texSize;
+                        texBottom = (tubeMaterialOffset + 12.0D) / texSize;
                     }
                 }
             }
@@ -252,11 +259,11 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.NORTH) {
                         bottomRight[2] = bottomLeft[2] = z + 0.75D;
-                        texBottom = 12.0D / texSize;
+                        texBottom = (tubeMaterialOffset + 12.0D) / texSize;
                     }
                     else {
                         topRight[2] = topLeft[2] = z + 0.25D;
-                        texTop = 4.0D / texSize;
+                        texTop = (tubeMaterialOffset + 4.0D) / texSize;
                     }
                 }
             }
@@ -271,11 +278,11 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
                 if(!completeTube) {
                     if(pipeDirection == ForgeDirection.WEST) {
                         bottomRight[0] = bottomLeft[0] = x + 0.75D;
-                        texBottom = 12.0D / texSize;
+                        texBottom = (tubeMaterialOffset + 12.0D) / texSize;
                     }
                     else {
                         topRight[0] = topLeft[0] = x + 0.25D;
-                        texTop = 4.0D / texSize;
+                        texTop = (tubeMaterialOffset + 4.0D) / texSize;
                     }
                 }
             }
@@ -297,9 +304,9 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
     }
 
     public void renderTubeExitFace(int x, int y, int z, ForgeDirection side, int brightness) {
-        double texTop = 4.0D / texSize;
+        double texTop = (tubeMaterialOffset + 4.0D) / texSize;
+        double texBottom = (tubeMaterialOffset + 12.0D) / texSize;
         double texLeft = 20.0D / texSize;
-        double texBottom = 12.0D / texSize;
         double texRight = 28.0D / texSize;
 
         double[] topRight    = new double[0];
@@ -362,9 +369,9 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
     }
 
     protected void renderElbowTubeFace(int x, int y, int z, ForgeDirection side, ForgeDirection[] pipeDirections, int brightness) {
-        double texTop = 0.0D / texSize;
+        double texTop = (tubeMaterialOffset + 0.0D) / texSize;
+        double texBottom = (tubeMaterialOffset + 12.0D) / texSize;
         double texLeft = 32.0D / texSize;
-        double texBottom = 12.0D / texSize;
         double texRight = 44.0D / texSize;
 
         double[] topRight    = new double[3];
@@ -512,10 +519,10 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
     }
 
     protected void renderElbowInnerFace(int x, int y, int z, ForgeDirection side, ForgeDirection pipeDirection, int brightness) {
-        double texTop = 0.0D / texSize;
-        double texLeft = 68.0D / texSize;
-        double texBottom = 4.0D / texSize;
-        double texRight = 76.0D / texSize;
+        double texTop = (tubeMaterialOffset + 0.0D) / texSize;
+        double texBottom = (tubeMaterialOffset + 4.0D) / texSize;
+        double texLeft = 52.0D / texSize;
+        double texRight = 60.0D / texSize;
 
         double[] topRight    = new double[3];
         double[] bottomRight = new double[3];

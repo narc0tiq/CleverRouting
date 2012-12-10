@@ -16,6 +16,11 @@ public class TileEntityTube extends TileEntity {
     // Please be sure and keep this in sort() order.
     public ForgeDirection[] connections;
 
+    public static final byte MATERIAL_STONE = 0;
+    public static final byte MATERIAL_GOLD  = 1;
+    public static final byte MATERIAL_BRASS = 2;
+    public byte material = MATERIAL_STONE;
+
     public TileEntityTube() {
         super();
 

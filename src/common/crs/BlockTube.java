@@ -108,7 +108,20 @@ public class BlockTube extends BlockGeneric {
     @Override
     @SideOnly(Side.CLIENT)
     public int getBlockTexture(IBlockAccess world, int x, int y, int z, int side) {
-        return 0;
+        int texOffset = 0;
+
+        TileEntity te = world.getBlockTileEntity(x, y, z);
+        if(te instanceof TileEntityTube) {
+            byte material = ((TileEntityTube)te).material;
+            if(material == TileEntityTube.MATERIAL_GOLD) {
+                texOffset = 16;
+            }
+            else if(material == TileEntityTube.MATERIAL_STONE) {
+                texOffset = 32;
+            }
+        }
+
+        return 0 + texOffset;
     }
 
     @Override
