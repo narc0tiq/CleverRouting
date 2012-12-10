@@ -56,5 +56,6 @@ public class PacketTubeDescriptor {
         }
 
         ((TileEntityTube)te).readData(data);
+        world.markBlockForRenderUpdate(x, y, z);
     }
 }

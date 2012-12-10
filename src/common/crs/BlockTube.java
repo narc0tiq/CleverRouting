@@ -4,6 +4,7 @@ import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 
 import net.minecraft.src.AxisAlignedBB;
+import net.minecraft.src.EntityLiving;
 import net.minecraft.src.IBlockAccess;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
@@ -116,7 +117,7 @@ public class BlockTube extends BlockGeneric {
             if(material == TileEntityTube.MATERIAL_GOLD) {
                 texOffset = 16;
             }
-            else if(material == TileEntityTube.MATERIAL_STONE) {
+            else if(material == TileEntityTube.MATERIAL_BRASS) {
                 texOffset = 32;
             }
         }
@@ -126,13 +127,16 @@ public class BlockTube extends BlockGeneric {
 
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, int otherBlockID) {
-        TileEntity te = world.getBlockTileEntity(x, y, z);
+        TileEntityTube tube = (TileEntityTube)world.getBlockTileEntity(x, y, z);
+        tube.updateConnections();
+    }
 
-        if(!(te instanceof TileEntityTube)) {
-            return; // WTF happened?
+    @Override
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving entity) {
+        if(CleverRouting.getSide() == Side.CLIENT) {
+            return; // client is a doodie head
         }
-
-        ((TileEntityTube)te).updateConnections();
-        world.markBlockForUpdate(x, y, z);
+        TileEntityTube tube = (TileEntityTube)world.getBlockTileEntity(x, y, z);
+        tube.updateConnections();
     }
 }

@@ -35,7 +35,10 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
             return false; // dafuq?
         }
         TileEntityTube tube = (TileEntityTube)te;
-        if(tube.material == TileEntityTube.MATERIAL_GOLD) {
+        if(tube.material == TileEntityTube.MATERIAL_STONE) {
+            this.tubeMaterialOffset = 0.0D;
+        }
+        else if(tube.material == TileEntityTube.MATERIAL_GOLD) {
             this.tubeMaterialOffset = 16.0D;
         }
         else if(tube.material == TileEntityTube.MATERIAL_BRASS) {
@@ -45,7 +48,7 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         int brightness = block.getMixedBrightnessForBlock(world, x, y, z);
         ForgeHooksClient.bindTexture(ClientProxy.BLOCKS_PNG, 0);
         if(tube.connections[0] == ForgeDirection.UNKNOWN) {
-            render.renderStandardBlock(block, x, y, z);
+            renderStandaloneTube(world, x, y, z, block, brightness, render);
         }
         else if(tube.connections[1] == ForgeDirection.UNKNOWN) {
             renderExitTube(tube, x, y, z, brightness);
@@ -68,6 +71,23 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         return this.renderID;
     }
 // }
+
+    public void renderStandaloneTube(IBlockAccess world, int x, int y, int z, Block block, int brightness, RenderBlocks render) {
+        render.renderStandardBlock(block, x, y, z); // First the outer faces...
+
+        int texIndex = block.getBlockTexture(world, x, y, z, 0);
+        Tessellator tess = Tessellator.instance;
+        for(ForgeDirection side: ForgeDirection.VALID_DIRECTIONS) {
+            switch(side) { // ...then the inner faces.
+                case UP:    render.renderTopFace   (block, x, y - 0.5D, z, texIndex); break;
+                case DOWN:  render.renderBottomFace(block, x, y + 0.5D, z, texIndex); break;
+                case NORTH: render.renderNorthFace (block, x + 0.5D, y, z, texIndex); break;
+                case SOUTH: render.renderSouthFace (block, x - 0.5D, y, z, texIndex); break;
+                case EAST:  render.renderEastFace  (block, x, y, z + 0.5D, texIndex); break;
+                case WEST:  render.renderWestFace  (block, x, y, z - 0.5D, texIndex); break;
+            }
+        }
+    }
 
     public boolean renderStraightTube(TileEntityTube tube, int x, int y, int z, int brightness) {
         switch(tube.connections[0]) {
