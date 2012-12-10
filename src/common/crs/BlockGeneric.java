@@ -26,7 +26,7 @@ public class BlockGeneric extends BlockContainer {
 
     @Override
     public String getTextureFile() {
-        return "/crs-gfx/blocks.png";
+        return ClientProxy.BLOCKS_PNG;
     }
 
     @Override

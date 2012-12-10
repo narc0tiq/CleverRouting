@@ -9,6 +9,10 @@ import net.minecraft.src.World;
 
 public class ClientProxy extends CommonProxy {
     public static RenderTubes tubeRenderer;
+    public static RenderTubeItem tubeItemRenderer;
+
+    public static final String BLOCKS_PNG = "/crs-gfx/blocks.png";
+    public static final String ITEMS_PNG  = "/crs-gfx/items.png";
 
     @Override
     public void init() {
@@ -19,13 +23,18 @@ public class ClientProxy extends CommonProxy {
     }
 
     public void preloadTextures() {
-        MinecraftForgeClient.preloadTexture("/crs-gfx/blocks.png");
-        MinecraftForgeClient.preloadTexture("/crs-gfx/items.png");
+        MinecraftForgeClient.preloadTexture(BLOCKS_PNG);
+        MinecraftForgeClient.preloadTexture(ITEMS_PNG);
     }
 
     public void initRenderers() {
         tubeRenderer = new RenderTubes(RenderingRegistry.getNextAvailableRenderId());
         RenderingRegistry.registerBlockHandler(tubeRenderer);
+
+        tubeItemRenderer = new RenderTubeItem();
+        MinecraftForgeClient.registerItemRenderer(CommonProxy.tubeStone.itemID, tubeItemRenderer);
+        MinecraftForgeClient.registerItemRenderer(CommonProxy.tubeGold.itemID,  tubeItemRenderer);
+        MinecraftForgeClient.registerItemRenderer(CommonProxy.tubeBrass.itemID, tubeItemRenderer);
     }
 
     @Override

@@ -43,7 +43,7 @@ public class RenderTubes implements ISimpleBlockRenderingHandler {
         }
 
         int brightness = block.getMixedBrightnessForBlock(world, x, y, z);
-        ForgeHooksClient.bindTexture("/crs-gfx/blocks.png", 0);
+        ForgeHooksClient.bindTexture(ClientProxy.BLOCKS_PNG, 0);
         if(tube.connections[0] == ForgeDirection.UNKNOWN) {
             render.renderStandardBlock(block, x, y, z);
         }

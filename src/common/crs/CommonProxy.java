@@ -37,13 +37,23 @@ public class CommonProxy {
 
     public void initItems(Configuration config) {
         Property stoneTubeID = config.getItem("tube.stone", 21010);
-        Item stoneTubeItem = new ItemGeneric("crs.tube.stone", stoneTubeID.getInt(), 0);
+        Item stoneTubeItem = new ItemTube("stone", stoneTubeID.getInt(), TileEntityTube.MATERIAL_STONE);
         tubeStone = new ItemStack(stoneTubeItem, 1);
+
+        Property goldTubeID = config.getItem("tube.gold", 21011);
+        Item goldTubeItem = new ItemTube("gold", goldTubeID.getInt(), TileEntityTube.MATERIAL_GOLD);
+        tubeGold = new ItemStack(goldTubeItem, 1);
+
+        Property brassTubeID = config.getItem("tube.brass", 21012);
+        Item brassTubeItem = new ItemTube("brass", brassTubeID.getInt(), TileEntityTube.MATERIAL_BRASS);
+        tubeBrass = new ItemStack(brassTubeItem, 1);
     }
 
     public void initLanguage() {
         LanguageRegistry.addName(tubeBlock, "Pneumatic Tube Block");
         LanguageRegistry.addName(tubeStone, "Stone Pneumatic Tube");
+        LanguageRegistry.addName(tubeGold,   "Gold Pneumatic Tube");
+        LanguageRegistry.addName(tubeBrass, "Brass Pneumatic Tube");
     }
 
     public World getClientWorld() {
